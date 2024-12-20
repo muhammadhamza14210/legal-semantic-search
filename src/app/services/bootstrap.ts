@@ -1,4 +1,6 @@
-'use server'
+"use server";
+
+import { createIndexIfNecessary } from "./pinecone";
 
 export const initiateBootstrapping = async (targetIndex: string) => {
   const baseUrl = process.env.PRODUCION_URL
@@ -6,14 +8,21 @@ export const initiateBootstrapping = async (targetIndex: string) => {
     : `https://${process.env.PORT}`;
 
   const response = await fetch(`${baseUrl}/api/ingest`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify({ targetIndex }),
+    body: JSON.stringify({ targetIndex })
   });
 
   if (!response.ok) {
     throw new Error(`Failed to initiate bootstrapping: ${response.status}`);
   }
+};
+
+export const handleBootStrapping = async (targetIndex: string) => {
+  try {
+    console.log(`Handling bootstrapping for index: ${targetIndex}`);
+    await createIndexIfNecessary(targetIndex);
+  } catch (error) {}
 };
