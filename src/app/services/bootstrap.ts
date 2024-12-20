@@ -1,6 +1,7 @@
 "use server";
 
-import { createIndexIfNecessary } from "./pinecone";
+import { NextResponse } from "next/server";
+import { createIndexIfNecessary, indexHasVectors } from "./pinecone";
 
 export const initiateBootstrapping = async (targetIndex: string) => {
   const baseUrl = process.env.PRODUCION_URL
@@ -24,5 +25,10 @@ export const handleBootStrapping = async (targetIndex: string) => {
   try {
     console.log(`Handling bootstrapping for index: ${targetIndex}`);
     await createIndexIfNecessary(targetIndex);
+    const hasVectors = await indexHasVectors(targetIndex);
+    if (hasVectors) {
+      console.log("Index exists and already has vectors.");
+      return NextResponse.json({success: true}, {status: 200});
+    }
   } catch (error) {}
 };
